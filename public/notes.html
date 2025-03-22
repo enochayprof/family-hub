@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-book"></i> Family Notes</h1>
+        <p>Access and share notes from our gatherings.</p>
+        
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <input type="file" id="note-upload" accept=".pdf,.docx,.txt" onchange="previewFile()">
+            <button class="btn upload-btn" onclick="uploadNote()">
+                <i class="fas fa-upload"></i> Upload Note
+            </button>
+            <p id="file-preview" style="display: none;"></p>
+        </div>
+
+        <!-- Search Section -->
+        <input type="text" id="search-notes" placeholder="Search notes..." onkeyup="searchNotes()">
+
+        <!-- Notes List -->
+        <div class="notes-list" id="notes-list">
+            <p>Loading notes...</p>
+        </div>
+        
+        <a class="back-btn" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <script>
+        async function fetchNotes() {
+            let response = await fetch('/get-notes');
+            let data = await response.json();
+            let notesList = document.getElementById("notes-list");
+            notesList.innerHTML = "";
+
+            if (data.length === 0) {
+                notesList.innerHTML = "<p>No notes available.</p>";
+                return;
+            }
+
+            data.forEach(note => {
+                let noteItem = document.createElement("div");
+                noteItem.classList.add("note-item");
+                noteItem.innerHTML = `
+                    <a href="${note.path}" target="_blank">
+                        <i class="fas fa-file-alt"></i> ${note.name}
+                    </a>
+                    <button class="delete-btn" onclick="deleteNote('${note.name}')">❌</button>
+                `;
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        function searchNotes() {
+            let input = document.getElementById("search-notes").value.toLowerCase();
+            let notes = document.querySelectorAll(".note-item");
+
+            notes.forEach(note => {
+                let text = note.innerText.toLowerCase();
+                note.style.display = text.includes(input) ? "block" : "none";
+            });
+        }
+
+        function previewFile() {
+            let fileInput = document.getElementById("note-upload");
+            let preview = document.getElementById("file-preview");
+            if (fileInput.files.length > 0) {
+                preview.textContent = `Selected file: ${fileInput.files[0].name}`;
+                preview.style.display = "block";
+            }
+        }
+
+        async function uploadNote() {
+            let file = document.getElementById("note-upload").files[0];
+            if (!file) {
+                alert("Please select a file to upload.");
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append("file", file);
+
+            let response = await fetch("/upload-note", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Note uploaded successfully!");
+                fetchNotes();
+            } else {
+                alert("Failed to upload note.");
+            }
+        }
+
+        async function deleteNote(noteName) {
+            let response = await fetch(`/delete-note?name=${noteName}`, { method: "DELETE" });
+            if (response.ok) {
+                alert("Note deleted successfully!");
+                fetchNotes();
+            } else {
+                alert("Failed to delete note.");
+            }
+        }
+
+        fetchNotes();
+    </script>
+</body>
+</html>
