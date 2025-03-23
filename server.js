@@ -29,12 +29,12 @@ ensureDirectoryExists('notes');
 
 // Family usernames and passwords (store securely in production)
 const users = {
-    'Olusegun Obadje': 'Obasegs@favour.com',
-    'Olufunke Obadje': 'Ifelola@favour.com',
-    'David Obadje': 'Dave@favour.com',
-    'Joshua Obadje': 'Josh@favour.com',
-    'Samuel Obadje': 'Sam@favour.com',
-    'Enoch Obadje': 'Enoch@favour.com'
+    'Olusegun Obadje': 'Obasegs',
+    'Olufunke Obadje': 'Ifelola',
+    'David Obadje': 'Dave',
+    'Joshua Obadje': 'Josh',
+    'Samuel Obadje': 'Sam',
+    'Enoch Obadje': 'Enoch'
 };
 
 // Google Meet links for family meetings
