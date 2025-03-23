@@ -45,107 +45,71 @@ const meetLinks = {
     '2025-06-15': 'https://meet.google.com/oni-hfvz-pie'
 };
 
-// Function to find the next upcoming Meet link
+// Function to find the correct Meet link for today or the next Sunday
 function getUpcomingMeetLink() {
     const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    if (today.getDay() === 0 && meetLinks[todayStr]) {
+        return { link: meetLinks[todayStr], date: todayStr };
+    }
+
+    let closestDate = null;
+    let closestLink = null;
+
     for (const date in meetLinks) {
         const meetDate = new Date(date);
-        if (meetDate >= today) {
-            return { link: meetLinks[date], date: date };
+        if (meetDate >= today && meetDate.getDay() === 0) {
+            closestDate = date;
+            closestLink = meetLinks[date];
+            break;
         }
     }
-    return { link: null, date: null };
+
+    return { link: closestLink, date: closestDate };
 }
 
-// Serve the login page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Serve pages
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/dashboard', (req, res) => req.session.username ? res.sendFile(path.join(__dirname, 'public', 'dashboard.html')) : res.redirect('/'));
+app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
+app.get('/get-meet-link', (req, res) => res.json(getUpcomingMeetLink()));
+app.get('/google-meet', (req, res) => res.sendFile(path.join(__dirname, 'public', 'google-meet.html')));
+app.get('/messages', (req, res) => res.sendFile(path.join(__dirname, 'public', 'messages.html')));
+app.get('/upload-page', (req, res) => res.sendFile(path.join(__dirname, 'public', 'upload.html')));
+app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, 'public', 'notes.html')));
 
 // Handle login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    
     if (users[username] && users[username] === password) {
         req.session.username = username;
         res.redirect('/dashboard');
     } else {
-        res.send('Invalid credentials. <a href=\"/\">Try again</a>');
+        res.send('Invalid credentials. <a href="/">Try again</a>');
     }
 });
 
-// Dashboard route
-app.get('/dashboard', (req, res) => {
-    if (!req.session.username) {
-        return res.redirect('/');
-    }
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-// Logout route
-app.get('/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/');
-    });
-});
-
-// Google Meet API route
-app.get('/get-meet-link', (req, res) => {
-    const upcomingMeet = getUpcomingMeetLink();
-    res.json(upcomingMeet);
-});
-
-// Google Meet Page
-app.get('/google-meet', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'google-meet.html'));
-});
-
-// Serve the messages page
-app.get('/messages', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'messages.html'));
-});
-
-// Serve the upload page
-app.get('/upload-page', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'upload.html'));
-});
-
-// Serve the notes page
-app.get('/notes', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'notes.html'));
-});
-
-// Set up storage for uploaded files
+// Set up file uploads
 const uploadStorage = multer.diskStorage({
     destination: 'uploads/',
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage: uploadStorage });
-
-// Set up storage for notes
 const notesStorage = multer.diskStorage({
     destination: 'notes/',
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const uploadNotes = multer({ storage: notesStorage });
 
-// Upload File API Endpoint
+// Upload API Endpoints
 app.post('/upload', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded.');
-    }
+    if (!req.file) return res.status(400).send('No file uploaded.');
     res.json({ filePath: `/uploads/${req.file.filename}`, fileName: req.file.originalname });
 });
 
-// Upload Note API Endpoint
 app.post('/upload-note', uploadNotes.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded.');
-    }
+    if (!req.file) return res.status(400).send('No file uploaded.');
     res.json({ filePath: `/notes/${req.file.filename}`, fileName: req.file.originalname });
 });
 
@@ -172,7 +136,5 @@ app.delete('/delete-note', (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 

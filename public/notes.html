@@ -6,16 +6,54 @@
     <title>Notes</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .container {
+            text-align: center;
+        }
+        .upload-section {
+            margin-top: 20px;
+        }
+        .upload-btn, .delete-btn {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .upload-btn:hover {
+            background: #0056b3;
+        }
+        .delete-btn {
+            background: red;
+        }
+        .delete-btn:hover {
+            background: darkred;
+        }
+        .notes-list {
+            margin-top: 20px;
+        }
+        .note-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f4f4f4;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1><i class="fas fa-book"></i> Family Notes</h1>
         <p>Access and share notes from our gatherings.</p>
-        
+
         <!-- Upload Section -->
         <div class="upload-section">
             <input type="file" id="note-upload" accept=".pdf,.docx,.txt" onchange="previewFile()">
-            <button class="btn upload-btn" onclick="uploadNote()">
+            <button class="upload-btn" onclick="uploadNote()">
                 <i class="fas fa-upload"></i> Upload Note
             </button>
             <p id="file-preview" style="display: none;"></p>
@@ -28,7 +66,7 @@
         <div class="notes-list" id="notes-list">
             <p>Loading notes...</p>
         </div>
-        
+
         <a class="back-btn" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
     </div>
 
@@ -63,7 +101,7 @@
 
             notes.forEach(note => {
                 let text = note.innerText.toLowerCase();
-                note.style.display = text.includes(input) ? "block" : "none";
+                note.style.display = text.includes(input) ? "flex" : "none";
             });
         }
 

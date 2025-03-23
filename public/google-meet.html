@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Meet</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Ensure styles.css is correctly linked -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+        }
+        #meetLink {
+            font-size: 18px;
+            font-weight: bold;
+            color: red;
+        }
+        .loading {
+            color: gray;
+            font-style: italic;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            background: #007BFF;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Google Meet</h1>
+        <p>Join the next scheduled family meeting.</p>
+        <p id="meetLink" class="loading">Loading meeting details...</p>
+        <br>
+        <a href="dashboard.html" class="btn">Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/get-meet-link')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch meeting details.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const meetLinkElement = document.getElementById('meetLink');
+                    if (data.link) {
+                        meetLinkElement.innerHTML = `<a href="${data.link}" target="_blank" style="color: green;">Join Meeting</a>`;
+                    } else {
+                        meetLinkElement.innerHTML = "No meeting scheduled.";
+                        meetLinkElement.style.color = "red";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('meetLink').innerHTML = "Error loading meeting details.";
+                    document.getElementById('meetLink').style.color = "red";
+                    console.error(error);
+                });
+        });
+    </script>
+</body>
+</html>
+

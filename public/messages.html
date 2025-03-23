@@ -3,28 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages</title>
+    <title>Family Messages</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        h1 {
+            color: #d4af37;
+        }
+        .message-container {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+            background: #2a2a2a;
+        }
+        .message {
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background: #3a3a3a;
+            display: flex;
+            align-items: center;
+        }
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            resize: none;
+            background: #2a2a2a;
+            color: white;
+        }
+        .send-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .send-btn i {
+            margin-right: 5px;
+        }
+        .send-btn:hover {
+            background: #1EBE5F;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-envelope"></i> Messages</h1>
-        <div class="message-container">
-            <div class="message">
-                <span class="user"><i class="fas fa-user"></i> John Doe:</span>
-                <p>Hello, how are you?</p>
-            </div>
-            <div class="message">
-                <span class="user"><i class="fas fa-user"></i> You:</span>
-                <p>I'm doing great! Thanks for asking.</p>
-            </div>
+        <h1><i class="fas fa-comments"></i> Family Messages</h1>
+        <p>Chat with the family and send messages to WhatsApp.</p>
+
+        <!-- Message History -->
+        <div class="message-container" id="message-container">
+            <p style="text-align:center; font-style:italic; color: #ccc;">Loading messages...</p>
         </div>
-        <form class="message-form">
-            <input type="text" placeholder="Type your message..." required>
-            <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
-        </form>
+
+        <!-- Message Input -->
+        <textarea id="message" placeholder="Type your message here..."></textarea>
+
+        <!-- Send to WhatsApp Button -->
+        <button class="send-btn" onclick="sendToWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Send to WhatsApp
+        </button>
+
+        <br>
         <a class="back-btn" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
     </div>
+
+    <script>
+        const adminUsers = ["Daddy", "Mummy", "Enoch Obadje"];
+        const avatars = ["avatar1.png", "avatar2.png", "avatar3.png"];
+
+        function sendToWhatsApp() {
+            let messageInput = document.getElementById("message");
+            let message = messageInput.value.trim();
+            if (message === "") {
+                alert("Please type a message before sending.");
+                return;
+            }
+
+            let encodedMessage = encodeURIComponent("📢 Family Hub: " + message);
+            let groupLink = "https://wa.me/?text=" + encodedMessage;
+
+            window.open(groupLink, "_blank");  // Opens WhatsApp with pre-filled message
+
+            addMessageToChat("You", message, true);
+            messageInput.value = "";
+        }
+
+        function addMessageToChat(user, message, isAdmin = false) {
+            let messageContainer = document.getElementById("message-container");
+            let newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+
+            let avatar = avatars[Math.floor(Math.random() * avatars.length)];
+            newMessage.innerHTML = `
+                <img src="images/${avatar}" class="avatar">
+                <div>
+                    <strong style="color: ${isAdmin ? '#FFD700' : '#007BFF'}">${user}:</strong>
+                    <p>${message}</p>
+                </div>
+            `;
+            messageContainer.appendChild(newMessage);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        function autoReply(message) {
+            if (message.toLowerCase().includes("what time is the family meeting")) {
+                setTimeout(() => {
+                    addMessageToChat("Auto-Reply", "Family meetings are at 7 PM WAT, or 8:30 PM WAT if delayed, every Sunday evening.", true);
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 </html>
