@@ -21,7 +21,7 @@ app.use(session({
 // Ensure upload directories exist
 const ensureDirectoryExists = (dir) => {
     if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+        fs.mkdirSync(dir, { recursive: true });
     }
 };
 ensureDirectoryExists('uploads');
@@ -113,6 +113,14 @@ app.post('/upload-note', uploadNotes.single('file'), (req, res) => {
     res.json({ filePath: `/notes/${req.file.filename}`, fileName: req.file.originalname });
 });
 
+// Fetch uploaded files
+app.get('/files', (req, res) => {
+    fs.readdir('uploads/', (err, files) => {
+        if (err) return res.status(500).send('Error fetching files');
+        res.json(files.map(file => ({ name: file, path: `/uploads/${file}` })));
+    });
+});
+
 // Fetch uploaded notes
 app.get('/get-notes', (req, res) => {
     fs.readdir('notes/', (err, files) => {
@@ -137,4 +145,3 @@ app.delete('/delete-note', (req, res) => {
 
 // Start the server
 app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
-
