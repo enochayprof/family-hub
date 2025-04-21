@@ -1,86 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Meet</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Ensure styles.css is correctly linked -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 {
-            color: #333;
-        }
-        #meetLink {
-            font-size: 18px;
-            font-weight: bold;
-            color: red;
-        }
-        .loading {
-            color: gray;
-            font-style: italic;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            text-decoration: none;
-            color: white;
-            background: #007BFF;
-            border-radius: 5px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Meet - Family Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .meet-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .meet-container h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .meet-container p {
+      font-style: italic;
+      color: #666;
+    }
+
+    .meet-link {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .meet-link a {
+      display: inline-block;
+      background: #d4af37;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+
+    .meet-link a:hover {
+      background: #f1c40f;
+    }
+
+    .btn-back {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+
+    .btn-back:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Google Meet</h1>
-        <p>Join the next scheduled family meeting.</p>
-        <p id="meetLink" class="loading">Loading meeting details...</p>
-        <br>
-        <a href="dashboard.html" class="btn">Back to Dashboard</a>
-    </div>
+  <div class="meet-container">
+    <h1>Family Google Meet</h1>
+    <p>Sunday Family Gathering</p>
+    <div class="meet-link" id="meetLink">Loading meeting link...</div>
+    <a class="btn-back" href="dashboard.html">← Back to Dashboard</a>
+  </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch('/get-meet-link')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch meeting details.");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const meetLinkElement = document.getElementById('meetLink');
-                    if (data.link) {
-                        meetLinkElement.innerHTML = `<a href="${data.link}" target="_blank" style="color: green;">Join Meeting</a>`;
-                    } else {
-                        meetLinkElement.innerHTML = "No meeting scheduled.";
-                        meetLinkElement.style.color = "red";
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('meetLink').innerHTML = "Error loading meeting details.";
-                    document.getElementById('meetLink').style.color = "red";
-                    console.error(error);
-                });
-        });
-    </script>
+  <script>
+    async function loadMeetLink() {
+      try {
+        const response = await fetch('/get-meet-link');
+        const data = await response.json();
+        const linkContainer = document.getElementById('meetLink');
+
+        if (data.link) {
+          linkContainer.innerHTML = `<a href="${data.link}" target="_blank">Join Meeting</a>`;
+        } else {
+          linkContainer.textContent = 'No meeting scheduled at this time.';
+        }
+      } catch (error) {
+        document.getElementById('meetLink').textContent = 'Failed to load meeting link.';
+        console.error('Error fetching link:', error);
+      }
+    }
+
+    window.onload = loadMeetLink;
+  </script>
 </body>
 </html>
-
